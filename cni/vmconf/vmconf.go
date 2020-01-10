@@ -54,6 +54,9 @@ type StaticNetworkConf struct {
 	// tap device was created and thus where the VM should execute.
 	NetNSPath string
 
+	// VMIfaceName is the interface name on VM side.
+	VMIfaceName string
+
 	// VMMacAddr is the mac address that callers should configure their VM to use internally.
 	VMMacAddr string
 	// VMMTU is the MTU that callers should configure their VM to use internally.
@@ -117,9 +120,7 @@ func (c StaticNetworkConf) IPBootParam() string {
 	// the "hostname" field actually just configures a hostname value for DHCP requests, thus no need to set it
 	const dhcpHostname = ""
 
-	// TODO(sipsma) we are assuming there is only one network device
-	// Just use the only network device present in the VM
-	const device = ""
+	device := c.VMIfaceName
 
 	// Don't do any autoconfiguration (i.e. DHCP, BOOTP, RARP)
 	const autoconfiguration = "off"
@@ -186,6 +187,7 @@ func StaticNetworkConfFrom(result types.Result, containerID string) (*StaticNetw
 	return &StaticNetworkConf{
 		TapName:           tapIface.Name,
 		NetNSPath:         tapIface.Sandbox,
+		VMIfaceName:       vmIface.Name,
 		VMMacAddr:         vmIface.Mac,
 		VMMTU:             tapMTU,
 		VMIPConfig:        vmIP,
