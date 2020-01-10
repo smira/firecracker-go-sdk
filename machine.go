@@ -402,10 +402,10 @@ func (m *Machine) setupKernelArgs(ctx context.Context) error {
 
 	// If any network interfaces have a static IP configured, we need to set the "ip=" boot param.
 	// Validation that we are not overriding an existing "ip=" setting happens in the network validation
-	if staticIPInterface := m.Cfg.NetworkInterfaces.staticIPInterface(); staticIPInterface != nil {
+	/*if staticIPInterface := m.Cfg.NetworkInterfaces.staticIPInterface(); staticIPInterface != nil {
 		ipBootParam := staticIPInterface.StaticConfiguration.IPConfiguration.ipBootParam()
 		kernelArgs["ip"] = &ipBootParam
-	}
+	}*/
 
 	m.Cfg.KernelArgs = kernelArgs.String()
 	return nil
