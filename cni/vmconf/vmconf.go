@@ -30,6 +30,7 @@ package vmconf
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/containernetworking/cni/pkg/types"
@@ -98,6 +99,7 @@ type StaticNetworkConf struct {
 //   /etc/resolv.conf to be a symlink to /proc/net/pnp in order to resolve names as expected.
 func (c StaticNetworkConf) IPBootParam() string {
 	// See "ip=" section of kernel linked above for details on each field listed below.
+	log.Printf("conf = %#v", c)
 
 	// client-ip is really just the ip that will be assigned to the primary interface
 	clientIP := c.VMIPConfig.Address.IP.String()
@@ -165,6 +167,7 @@ func StaticNetworkConfFrom(result types.Result, containerID string) (*StaticNetw
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("vmIface = %#v", *vmIface)
 
 	// find the IP associated with the VM iface
 	vmIPs := internal.InterfaceIPs(currentResult, vmIface.Name, vmIface.Sandbox)
