@@ -158,6 +158,7 @@ func (networkInterfaces NetworkInterfaces) setupNetwork(
 				IPAddr:      vmNetConf.VMIPConfig.Address,
 				Gateway:     vmNetConf.VMIPConfig.Gateway,
 				Nameservers: vmNetConf.VMNameservers,
+				IfName:      cniNetworkInterface.CNIConfiguration.VMIfName,
 			}
 		}
 	}
@@ -247,6 +248,11 @@ type CNIConfiguration struct {
 	// created by a chained plugin that adapts the tap to a pre-existing
 	// network device (which will by the one with "IfName").
 	IfName string
+
+	// VMIfName (optional) sets the interface name in the VM. It is used
+	// to correctly pass IP configuration obtained from the CNI to the VM kernel.
+	// It can be left blank for VMs with single network interface.
+	VMIfName string
 
 	// Args (optional) corresponds to the CNI_ARGS parameter as specified in
 	// the CNI spec. It allows custom args to be passed to CNI plugins during
@@ -507,7 +513,8 @@ func (staticConf StaticNetworkConfiguration) validate() error {
 // IPConfiguration specifies an IP, a gateway and DNS Nameservers that should be configured
 // automatically within the VM upon boot. It currently only supports IPv4 addresses.
 //
-// IPConfiguration can currently only be specified for VM's with a single network interface.
+// IPConfiguration can specify interface name, in that case config will be applied to the
+// specified interface, if IfName is left blank, config applies to VM with a single network interface.
 // The IPAddr and Gateway will be used to assign an IP a a default route for the VM's internal
 // interface.
 //
@@ -519,6 +526,7 @@ type IPConfiguration struct {
 	IPAddr      net.IPNet
 	Gateway     net.IP
 	Nameservers []string
+	IfName      string
 }
 
 func (ipConf IPConfiguration) validate() error {
@@ -545,6 +553,7 @@ func (conf IPConfiguration) ipBootParam() string {
 			Address: conf.IPAddr,
 			Gateway: conf.Gateway,
 		},
+		VMIfName: conf.IfName,
 	}
 
 	return vmConf.IPBootParam()
